@@ -1,5 +1,8 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import 'firebase/firestore'
+
+
 
 const config = {
     apiKey: "AIzaSyDgkR3-h37tPlJVmzImRlJzK_Gq0Mftkuw",
@@ -52,3 +55,32 @@ export const checkIfUser = () => {
 export const logout = () => {
     return firebase.auth().signOut()
 }
+
+
+/* firestore services*/
+
+const db = firebase.firestore()
+const foodRef = db.collection('food')
+
+export const getFood = () => {
+    return foodRef.get()
+        .then(snap => {
+            const food = []
+            snap.forEach((doc) => {
+                food.push(doc.data())
+            })
+            return food
+        }).catch(e => {
+            throw e
+        })
+}
+
+export const saveFood = (food) => {
+    return foodRef.add(food)
+        .then(doc => {
+            return doc
+        }).catch(e => {
+            throw e
+        })
+}
+
