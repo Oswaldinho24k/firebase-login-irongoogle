@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import { getFood, saveFood } from '../../services/firebase'
-import { Input, Tooltip, Icon, Button, message, Form } from 'antd';
+import { Input, Tooltip, Icon, Button, message, Form, Card } from 'antd';
+import { Link } from 'react-router-dom'
+
+
 
 export class FoodList extends Component {
 
@@ -30,7 +33,8 @@ export class FoodList extends Component {
         event.preventDefault()
         const { newFood, food } = this.state
         saveFood(newFood)
-            .then(doc => {
+            .then(doc => {                
+                newFood['id'] = doc.id
                 message.success('Agregado con éxito')
                 const newArray = [...food, newFood]
                 this.setState({ food: newArray, newFood: {} })
@@ -63,7 +67,9 @@ export class FoodList extends Component {
                 </Form>
 
                 {food.map((doc, key) => (
-                    <p key={key}>{doc.name}</p>
+                    <Card key={key}>
+                        <Link to={`/food/${doc.id}`}>{doc.name}</Link>
+                    </Card>
                 ))}
             </div>
         )

@@ -4,6 +4,7 @@ import LoginComponent from './components/auth/LoginComponent'
 import SignupComponent from './components/auth/SignupComponent'
 import ProfilePage from './components/user/ProfilePage'
 import FoodList from './components/food/FoodList';
+import FoodDetail from './components/food/FoodDetail';
 
 
 export class Routes extends Component {
@@ -13,7 +14,8 @@ export class Routes extends Component {
                 <Route path="/login" component={LoginComponent} />
                 <Route path="/signup" component={SignupComponent} />
                 <Route path="/profile" component={ProfilePage} />
-                <Route path="/food" component={FoodList} />
+                <Route exact path="/food" component={FoodList} />
+                <Route exact path="/food/:id" component={FoodDetail} />
             </Switch>
         )
     }

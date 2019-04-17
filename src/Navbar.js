@@ -48,6 +48,11 @@ export class Navbar extends Component {
                         </Menu.Item>
                     </Menu>
                 }
+                <Menu>
+                    <Menu.Item>
+                        <Link to="/food">Food</Link>
+                    </Menu.Item>
+                </Menu>
             </div>
         )
     }

@@ -67,7 +67,9 @@ export const getFood = () => {
         .then(snap => {
             const food = []
             snap.forEach((doc) => {
-                food.push(doc.data())
+                const f = doc.data()
+                f['id'] = doc.id
+                food.push(f)
             })
             return food
         }).catch(e => {
@@ -75,12 +77,40 @@ export const getFood = () => {
         })
 }
 
+
+
 export const saveFood = (food) => {
     return foodRef.add(food)
-        .then(doc => {
-            return doc
+        .then(res => {
+            return res
         }).catch(e => {
             throw e
         })
 }
 
+export const getFoodById = (id) => {
+    return foodRef.doc(id).get()
+        .then(res => {
+            return res
+        }).catch(e => {
+            throw e
+        })
+}
+
+export const updateFood = (id, food) => {
+    return foodRef.doc(id).set(food)
+        .then(res => {
+            return res
+        }).catch(e => {
+            throw e
+        })
+}
+
+export const deleteFood = (id) => {
+    return foodRef.doc(id).delete()
+        .then(r => {
+            return r
+        }).catch(e => {
+            throw e
+        })
+}
