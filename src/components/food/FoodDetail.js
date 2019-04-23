@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
-import { getFoodById, updateFood, deleteFood } from '../../services/firebase'
-import { Input, Tooltip, Icon, Button, message, Form, Card, Popconfirm } from 'antd';
+import { getFoodById, updateFood, deleteFood, uploadPicture } from '../../services/firebase'
+import { Input, Tooltip, Icon, Button, message, Form, Card, Popconfirm, Progress } from 'antd';
 
 export class FoodDetail extends Component {
 
     state = {
         food: {},
-        updating: false
+        updating: false,
+        progress: 0
     }
 
     componentWillMount() {
@@ -58,8 +59,29 @@ export class FoodDetail extends Component {
 
     }
 
+    handleImage = (event) => {
+        console.log(event.target.files)
+        const { food } = this.state
+        const task = uploadPicture(event.target.files[0], food.name)
+
+        task.on('state_changed', (snap) => {
+            const progress = (snap.bytesTransferred / snap.totalBytes) * 100
+            this.setState({ progress })
+        }, (error) => {
+            console.log(error)
+        }, () => {
+            task.snapshot.ref.getDownloadURL()
+                .then(link => {
+                    let obj = { ...food }
+                    obj['image'] = link
+                    this.setState({ food: obj })
+                })
+        })
+
+    }
+
     render() {
-        const { food, updating } = this.state
+        const { food, updating, progress } = this.state
         return (
             <div>
 
@@ -81,11 +103,17 @@ export class FoodDetail extends Component {
                             placeholder="$$$$$$"
                             prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                         />
+                        <Progress percent={progress} />
+                        <input
+                            type="file"
+                            onChange={this.handleImage} />
                         <Button type="primary" htmlType="submit" block>🍕Guardar food 🍔</Button>
                     </Form> :
                     <div>
                         <h1>{food.name}</h1>
                         <p>{food.price}</p>
+                        <img src={food.image} style={{ width: '400px' }} />
+
                         <Button onClick={this.handleUpdate}>Editar</Button>
                         <Popconfirm
                             title="U sure u want to delete this food?"

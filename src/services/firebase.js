@@ -1,6 +1,7 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
+import 'firebase/storage'
 
 
 
@@ -61,9 +62,12 @@ export const logout = () => {
 
 const db = firebase.firestore()
 const foodRef = db.collection('food')
-
+//get elements from db
 export const getFood = () => {
-    return foodRef.get()
+    return foodRef
+        .where('restaurantID', '==', 'UaQ1HqSkvZ2cATBPs0rX')
+        .orderBy("price")
+        .get()
         .then(snap => {
             const food = []
             snap.forEach((doc) => {
@@ -78,7 +82,7 @@ export const getFood = () => {
 }
 
 
-
+//create element
 export const saveFood = (food) => {
     return foodRef.add(food)
         .then(res => {
@@ -88,6 +92,7 @@ export const saveFood = (food) => {
         })
 }
 
+//get an element from db
 export const getFoodById = (id) => {
     return foodRef.doc(id).get()
         .then(res => {
@@ -97,6 +102,7 @@ export const getFoodById = (id) => {
         })
 }
 
+//update element by id
 export const updateFood = (id, food) => {
     return foodRef.doc(id).set(food)
         .then(res => {
@@ -106,6 +112,7 @@ export const updateFood = (id, food) => {
         })
 }
 
+//get delete from db
 export const deleteFood = (id) => {
     return foodRef.doc(id).delete()
         .then(r => {
@@ -113,4 +120,13 @@ export const deleteFood = (id) => {
         }).catch(e => {
             throw e
         })
+}
+
+/*Storage*/
+const storage = firebase.storage()
+const foodRefPictures = storage.ref('food')
+
+export const uploadPicture = (img, name) => {
+    const task = foodRefPictures.child(name).put(img)
+    return task
 }

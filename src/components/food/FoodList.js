@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { getFood, saveFood } from '../../services/firebase'
-import { Input, Tooltip, Icon, Button, message, Form, Card } from 'antd';
+import { getFood, saveFood, uploadPicture } from '../../services/firebase'
+import { Input, Tooltip, Icon, Button, message, Form, Card, Progress } from 'antd';
 import { Link } from 'react-router-dom'
 
 
@@ -9,7 +9,8 @@ export class FoodList extends Component {
 
     state = {
         food: [],
-        newFood: {}
+        newFood: {},
+        progress: 0
     }
 
     componentWillMount() {
@@ -33,7 +34,7 @@ export class FoodList extends Component {
         event.preventDefault()
         const { newFood, food } = this.state
         saveFood(newFood)
-            .then(doc => {                
+            .then(doc => {
                 newFood['id'] = doc.id
                 message.success('Agregado con éxito')
                 const newArray = [...food, newFood]
@@ -41,11 +42,32 @@ export class FoodList extends Component {
             })
     }
 
+    handleImage = (event) => {
+        console.log(event.target.files)
+        const { newFood } = this.state
+        const task = uploadPicture(event.target.files[0], newFood.name)
+
+        task.on('state_changed', (snap) => {
+            const progress = (snap.bytesTransferred / snap.totalBytes) * 100
+            this.setState({ progress })
+        }, (error) => {
+            console.log(error)
+        }, () => {
+            task.snapshot.ref.getDownloadURL()
+                .then(link => {
+                    let obj = { ...newFood }
+                    obj['image'] = link
+                    this.setState({ newFood: obj })
+                })
+        })
+
+    }
+
+
     render() {
-        const { food, newFood } = this.state
+        const { food, newFood, progress } = this.state
         return (
             <div>
-
                 <Form onSubmit={this.handleSubmit}>
                     <Input
                         type="text"
@@ -63,11 +85,16 @@ export class FoodList extends Component {
                         placeholder="$$$$$$"
                         prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                     />
+                    <Progress percent={progress} />
+                    <input
+                        type="file"
+                        onChange={this.handleImage} />
                     <Button type="primary" htmlType="submit" block>🍕Guardar food 🍔</Button>
                 </Form>
 
                 {food.map((doc, key) => (
                     <Card key={key}>
+                        <img src={doc.image} />
                         <Link to={`/food/${doc.id}`}>{doc.name}</Link>
                     </Card>
                 ))}
